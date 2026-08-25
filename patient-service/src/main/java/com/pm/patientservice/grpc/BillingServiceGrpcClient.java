@@ -39,10 +39,15 @@ public class BillingServiceGrpcClient {
     public BillingResponse createBillingAccount(
             String patientId,
             String name,
-            String email
+            String email,
+            String status
     ){
         BillingRequest request = BillingRequest.newBuilder()
-                .setPatientId(patientId).setName(name).setEmail(email).build();
+                .setPatientId(patientId)
+                .setName(name)
+                .setEmail(email)
+                .setStatus(status)
+                .build();
 
         BillingResponse response = blockingStub.createBillingAccount(request);
 

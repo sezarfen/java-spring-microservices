@@ -25,9 +25,14 @@ public class BillingGrpcService extends BillingServiceImplBase {
         // Business logic - e.g save to database, perform calculates etc
 
         // pretend like generating new account
+//        BillingResponse response = BillingResponse.newBuilder()
+//                .setAccountId("12345")
+//                .setStatus("ACTIVE")
+//                .build();
+
         BillingResponse response = BillingResponse.newBuilder()
-                .setAccountId("12345")
-                .setStatus("ACTIVE")
+                .setAccountId(billingRequest.getPatientId())
+                .setStatus(billingRequest.getStatus())
                 .build();
 
         responseObserver.onNext(response); // başka bir response data döndüreceksek 1 satırda daha yine bunu yazıp yapabiliriz.
