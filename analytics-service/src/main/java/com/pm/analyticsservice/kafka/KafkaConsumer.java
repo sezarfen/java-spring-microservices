@@ -15,8 +15,8 @@ public class KafkaConsumer {
     // groupId consumer'ın kim olduğunu söylüyor, biraz daha advanced bir topic şu an için.
     @KafkaListener(topics = "patient", groupId = "analytics-service")
     public void consumeEvent(byte[] event) {
+        log.info("BURAYA GELDİ");
         try {
-
             PatientEvent patientEvent = PatientEvent.parseFrom(event);
             // .. analitik servis için bir business kodu yazabiliriz buraya
             log.info("Received Patient Event: [PatientId={}, PatientName={}, PatientEmail={}]",
@@ -25,7 +25,6 @@ public class KafkaConsumer {
 
             log.error("Error Deserializing event {}", e.getMessage());
             // Exception fırlatıp analitik servisi durdurmadan loglayalım
-
         }
     }
 }
