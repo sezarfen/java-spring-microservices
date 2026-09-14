@@ -38,9 +38,11 @@ public class AuthController {
     @Operation(summary = "Validate Token")
     @GetMapping("/validate")
     public ResponseEntity<Void> validateToken(
-            @RequestHeader("Authorization") String authHeader){
+            @RequestHeader("Authorization") String authHeader) {
+
+        // RFC standartında bu şekilde gönderiliyor Auth tokenleri
         // Authorization: Bearer <token> // Bearer kelimesi ile başlaması standart
-        if (authHeader != null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
