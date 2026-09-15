@@ -33,12 +33,12 @@ public class JwtValidationGatewayFilterFactory extends // JwtValidation olarak i
             return exchange.getResponse().setComplete();
          }
 
-            return webClient.get()
-                    .uri("/validate")
-                    .header(HttpHeaders.AUTHORIZATION, token)
-                    .retrieve()
-                    .toBodilessEntity()
-                    .then(chain.filter(exchange));
+         return webClient.get()
+                .uri("/validate")
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .retrieve()
+                .toBodilessEntity()
+                .then(chain.filter(exchange));
         };
     }
 }
