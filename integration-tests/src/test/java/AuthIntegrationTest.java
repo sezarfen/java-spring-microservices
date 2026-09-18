@@ -16,7 +16,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    public void shouldReturnOKWithValidToken() {
+    public void shouldReturnOKWithValidToken() { // login.http dosyasında yaptığımızı otomatize etmiş olduk.
         // 1. Arrange
         // 2. act
         // 3. assert
@@ -40,5 +40,23 @@ public class AuthIntegrationTest {
                 .response();
 
         System.out.println("Generated Token: " + response.jsonPath().getString("token"));
+    }
+
+    @Test
+    public void shouldReturnUnauthorizedOnInvalidLogin() {
+        String loginPayload = """
+                {
+                    "email": "invalid_user@test.com",
+                    "password": "wrongpassword"
+                }
+                """;
+
+        given()
+                .contentType("application/json")
+                .body(loginPayload)
+                .when()
+                .post("/auth/login")
+                .then()
+                .statusCode(401);
     }
 }
