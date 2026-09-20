@@ -1,7 +1,11 @@
 <script setup>
   import {onMounted, ref} from "vue";
   import axios from "axios";
+  import {useRouter} from "vue-router";
 
+  const router = useRouter();
+
+  const canPageLoaded = ref(false);
   const patients = ref([]);
 
   const getPatients = async () => {
@@ -15,9 +19,11 @@
       });
 
       patients.value = response.data;
-      console.log(response.data)
+      console.log(response.data);
+      canPageLoaded.value = true;
     } catch (err) {
       console.log(err);
+      router.push('/login')
     }
   }
 
@@ -27,7 +33,7 @@
 </script>
 
 <template>
-  <main class="patients-page">
+  <main class="patients-page" v-if="canPageLoaded">
     <section class="page-heading">
       <div>
         <p class="eyebrow">Patient directory</p>

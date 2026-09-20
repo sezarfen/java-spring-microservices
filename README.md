@@ -1,256 +1,209 @@
-# Patient Management System
+# Patient Management
 
-A modern microservices-based patient management platform built with Java and Spring Boot. The system provides comprehensive healthcare management capabilities including patient data management, authentication, billing, and analytics.
+Patient Management is a Java/Spring Boot microservices project with a Vue 3 frontend. The current application supports JWT login, protected patient endpoints, patient listing, and logout from the frontend.
 
-## 🏗️ System Architecture
+## Architecture
 
-This is a **microservices architecture** with the following services:
+The repository contains the following applications:
 
-### Core Services
+| Application | Port | Responsibility |
+| --- | ---: | --- |
+| `frontend` | `5173` | Vue 3/Vite user interface |
+| `api-gateway` | `4004` | Routes client requests and validates JWTs |
+| `auth-service` | `4005` | Authenticates users and issues JWTs |
+| `patient-service` | `4000` | Provides patient CRUD endpoints |
+| `billing-service` | — | Billing account gRPC service |
+| `analytics-service` | — | Consumes patient events for analytics |
 
-- **Auth Service** (Port 4005)
-  - JWT-based authentication and authorization
-  - User credential management
-  - Security token generation and validation
-  - Built with Spring Security
+The API Gateway exposes:
 
-- **Patient Service** (Port 4000)
-  - Patient data management (CRUD operations)
-  - Health records and medical history
-  - Integration with Kafka for event streaming
-  - gRPC communication with other services
-  - PostgreSQL database
+- `POST /auth/login` → Auth Service
+- `GET /auth/validate` → Auth Service
+- `/api/patients/**` → Patient Service with JWT validation
 
-- **Billing Service**
-  - Financial transaction management
-  - Billing records and invoice generation
-  - Payment processing
+Patient events are published through Kafka. Patient Service also contains the gRPC client integration used for billing communication.
 
-- **Analytics Service**
-  - Data analysis and reporting
-  - Patient statistics and insights
-  - Business intelligence
+## Technology Stack
 
-- **API Gateway**
-  - Central entry point for all client requests
-  - Request routing and load balancing
-  - Spring Cloud Gateway Server
-
-## 🔧 Tech Stack
-
-- **Language**: Java 21
-- **Framework**: Spring Boot 4.x
-- **Communication Protocols**:
-  - REST API (HTTP)
-  - gRPC for inter-service communication
-  - Kafka for event-driven messaging
-- **Database**: PostgreSQL
-- **Authentication**: JWT (JJWT)
-- **API Documentation**: OpenAPI/Swagger (SpringDoc)
-- **Build Tool**: Maven
-- **Containerization**: Docker
-
-## 📋 Prerequisites
-
-- Java 21 or higher
-- Maven 3.8+
-- Docker & Docker Compose
-- PostgreSQL 13+ (or use Docker)
-- Apache Kafka (included in docker setup)
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/sezarfen/develop-more-with-java.git
-cd patient-management
-```
-
-### 2. Setup with Docker Compose
-
-The easiest way to run the entire system is with Docker:
-
-```bash
-cd docker-related
-docker-compose up -d
-```
-
-This will start:
-- PostgreSQL database
+- Java 21
+- Spring Boot 4.1.1
+- Spring Security and JJWT 0.12.6
+- Spring Cloud Gateway
+- Spring Data JPA
+- PostgreSQL
 - Apache Kafka
-- All microservices
+- gRPC and Protocol Buffers
+- OpenAPI/Swagger
+- Vue 3, Vue Router, Axios, Vite
+- Tailwind CSS 4
+- Maven and npm
 
-### 3. Build Individual Services (Optional)
+## Prerequisites
 
-To build a specific service:
+- Java 21
+- Maven 3.8+ or the Maven wrapper included in each backend service
+- Node.js `22.18+` (or Node.js `24.12+`)
+- npm
+- PostgreSQL
+- Apache Kafka for event-driven features
+
+## Running the Project
+
+### 1. Start backend dependencies
+
+Start PostgreSQL and Kafka using your preferred local or containerized setup. This repository does not currently include a `docker-compose.yml`; database-related PostgreSQL files are stored in the `*-db` directories.
+
+### 2. Start the backend services
+
+Run each service from its own directory:
 
 ```bash
 cd auth-service
-mvn clean install
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
-
-### 4. Access Services
-
-- **Patient Service**: http://localhost:4000
-- **Auth Service**: http://localhost:4005
-- **Swagger UI**: Available at `/swagger-ui.html` on each service
-
-## 📡 API Endpoints
-
-### Auth Service (Port 4005)
 
 ```bash
-POST   /api/auth/login         # User login
-POST   /api/auth/register      # User registration
-POST   /api/auth/refresh       # Refresh JWT token
-POST   /api/auth/logout        # User logout
+cd patient-service
+./mvnw spring-boot:run
 ```
-
-### Patient Service (Port 4000)
 
 ```bash
-GET    /api/patients           # Get all patients
-GET    /api/patients/{id}      # Get patient by ID
-POST   /api/patients           # Create new patient
-PUT    /api/patients/{id}      # Update patient
-DELETE /api/patients/{id}      # Delete patient
+cd api-gateway
+./mvnw spring-boot:run
 ```
 
-## 🔐 Authentication
+Start `billing-service` and `analytics-service` in the same way when those integrations are needed.
 
-The system uses **JWT (JSON Web Tokens)** for stateless authentication:
+On Windows, use `mvnw.cmd` instead of `./mvnw`.
 
-1. User logs in via Auth Service
-2. Auth Service returns JWT token
-3. Include token in `Authorization: Bearer <token>` header for subsequent requests
-4. API Gateway validates token on each request
+### 3. Start the frontend
 
-## 📨 Event-Driven Architecture
-
-The system uses **Apache Kafka** for asynchronous communication:
-
-- **Patient Service** publishes patient events to Kafka topics
-- Other services consume these events for real-time updates
-- Ensures loose coupling between services
-
-## 🔌 gRPC Communication
-
-Patient Service uses gRPC for high-performance inter-service communication:
-
-- Defined in `.proto` files
-- Protocol Buffer serialization
-- Suitable for internal service-to-service calls
-
-## 📝 Project Structure
-
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+
+Open <http://localhost:5173>.
+
+The Vite development server proxies `/auth` and `/api` requests to the API Gateway at `http://localhost:4004`.
+
+## Frontend Features
+
+- Login form at `/login`
+- Protected patient list at `/patients`
+- JWT stored in `localStorage` under `patient-management-token`
+- Patient list with name, email, date of birth, address, and record ID
+- Profile menu with logout
+- Redirect to `/login` when a patient request is unauthorized
+
+## API Usage
+
+### Login
+
+```bash
+curl -X POST http://localhost:4004/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"testuser@test.com","password":"password123"}'
+```
+
+The response contains a JWT token:
+
+```json
+{
+  "token": "your-jwt-token"
+}
+```
+
+### Get patients
+
+Pass the token using the standard Bearer scheme:
+
+```bash
+curl http://localhost:4004/api/patients \
+  -H "Authorization: Bearer your-jwt-token"
+```
+
+Available patient endpoints:
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/patients` | List all patients |
+| `GET` | `/api/patients/{id}` | Get one patient |
+| `POST` | `/api/patients` | Create a patient |
+| `PUT` | `/api/patients/{id}` | Update a patient |
+| `DELETE` | `/api/patients/{id}` | Delete a patient |
+
+Example request files are available under [`api-requests`](./api-requests).
+
+## API Documentation
+
+The backend services include SpringDoc OpenAPI support. When a service is running, its Swagger UI is available at:
+
+```text
+http://localhost:<service-port>/swagger-ui/index.html
+```
+
+For example:
+
+- <http://localhost:4000/swagger-ui/index.html>
+- <http://localhost:4005/swagger-ui/index.html>
+
+## Project Structure
+
+```text
 patient-management/
-├── auth-service/          # Authentication & Authorization
-├── patient-service/       # Patient data management
-├── api-gateway/           # API Gateway & Routing
-├── billing-service/       # Billing & Payments
-├── analytics-service/     # Analytics & Reporting
-├── auth-service-db/       # Auth service database setup
-├── docker-related/        # Docker & Docker Compose configuration
-├── grpc-requests/         # gRPC request examples
-└── api-requests/          # API request examples
+├── api-gateway/          # Gateway routes and JWT validation
+├── auth-service/         # Login and JWT generation
+├── patient-service/      # Patient CRUD and Kafka/gRPC integrations
+├── billing-service/      # Billing gRPC service
+├── analytics-service/    # Patient event consumer
+├── frontend/             # Vue 3 application
+├── integration-tests/   # REST integration tests
+├── api-requests/         # HTTP request examples
+├── grpc-requests/        # gRPC request examples
+├── auth-service-db/      # PostgreSQL runtime files
+├── patient-service-db/   # PostgreSQL runtime files
+└── docker-related/       # PostgreSQL runtime files
 ```
 
-## 🧪 Testing
+## Testing and Builds
 
-Run tests for a specific service:
+Run backend tests for an individual service:
 
 ```bash
-cd <service-name>
+cd patient-service
+./mvnw test
+```
+
+Run integration tests:
+
+```bash
+cd integration-tests
 mvn test
 ```
 
-## 🐛 Debugging
-
-Enable debug logging in `application.properties`:
-
-```properties
-logging.level.com.pm=DEBUG
-logging.level.org.springframework.security=DEBUG
-```
-
-## 📊 Database Schema
-
-The system uses PostgreSQL with the following main entities:
-
-- **User** (Auth Service)
-  - username, email, password (encrypted)
-  - roles and permissions
-
-- **Patient** (Patient Service)
-  - patient_id, name, age, contact info
-  - medical history, health records
-  - appointment data
-
-## 🔗 Service Communication Flow
-
-```
-Client Request
-    ↓
-API Gateway (Spring Cloud Gateway)
-    ↓
-├─→ Auth Service (JWT validation)
-├─→ Patient Service (REST/gRPC)
-├─→ Billing Service
-└─→ Analytics Service
-    ↓
-PostgreSQL Database
-    ↓
-Kafka Events (Async messaging)
-```
-
-## 🛠️ Development Tips
-
-### Adding a New Service
-
-1. Create a new Maven module following existing service structure
-2. Add Spring Boot parent POM configuration
-3. Register with API Gateway via routing rules
-4. Add to Docker Compose for orchestration
-
-### Monitoring Kafka Messages
+Build the frontend:
 
 ```bash
-# From docker-related directory
-docker exec -it kafka kafka-console-consumer --bootstrap-server kafka:9092 --topic patient-events
+cd frontend
+npm run build
 ```
 
-### Database Connection
+Run frontend type checking separately:
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/patient_db
-spring.datasource.username=postgres
-spring.datasource.password=password
-spring.jpa.hibernate.ddl-auto=update
+```bash
+cd frontend
+npm run type-check
 ```
 
-## 📚 Documentation
+## Development Notes
 
-- OpenAPI/Swagger docs available at: `/swagger-ui.html` on each service
-- Check `HELP.md` files in each service for additional details
+- Keep secrets and database credentials outside committed source files.
+- Use the API Gateway (`4004`) from the frontend rather than calling backend services directly.
+- Protected requests require an `Authorization: Bearer <token>` header.
+- Kafka and gRPC integrations require their corresponding infrastructure to be running.
 
-## 🤝 Contributing
+## License
 
-1. Create a feature branch
-2. Commit changes with meaningful messages
-3. Push to repository
-4. Submit pull request for review
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 👥 Support
-
-For issues and questions, please open an issue on the GitHub repository.
-
----
-
-**Built with ❤️ using Java, Spring Boot, and Microservices Architecture**
+No license file is currently included in the repository.
