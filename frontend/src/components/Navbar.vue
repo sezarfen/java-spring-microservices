@@ -2,15 +2,17 @@
 
 import {HomeIcon, UsersIcon, CalendarDaysIcon, EyeDropperIcon, FolderMinusIcon} from "@heroicons/vue/24/solid";
 import {ref} from "vue";
-import {useRouter} from "vue-router";
+import {useRouter, useRoute} from "vue-router";
 
 defineProps({
     title: String,
     smallTitle: String
   });
 
+  const route = useRoute();
   const router = useRouter();
   const isProfileMenuOpen = ref(false);
+  const currentPath = route.path;
 
   const logout = () => {
     localStorage.removeItem("patient-management-token");
@@ -22,27 +24,27 @@ defineProps({
     {
       name: 'Dashboard',
       icon: HomeIcon,
-      isActive: true
+      path: '/'
     },
     {
       name: 'Hastalar',
       icon: UsersIcon,
-      isActive: false
+      path: '/patients'
     },
     {
       name: 'Randevular',
       icon: CalendarDaysIcon,
-      isActive: false
+      path: '/appointments'
     },
     {
       name: "Doktorlar",
       icon: EyeDropperIcon,
-      isActive: false
+      path: '/doctors'
     },
     {
       name: "Raporlar",
       icon: FolderMinusIcon,
-      isActive: false
+      path: '/raports'
     }
 
   ]
@@ -65,7 +67,7 @@ defineProps({
         </span>
       </a>
       <nav class="nav-links" aria-label="Ana navigasyon">
-        <a v-bind:class='["nav-link", item.isActive ? "nav-link--active" : ""]' href="#" v-for="item in navbarItems">
+        <a v-bind:class='["nav-link", item.path === currentPath ? "nav-link--active" : ""]' href="#" v-for="item in navbarItems">
           <component :is="item.icon" />
           <span> {{item.name}}</span>
         </a>

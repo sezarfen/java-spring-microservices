@@ -1,5 +1,5 @@
 <script setup>
-  import axios from "axios";
+  import api from "@/services/api.js";
   import {onMounted, reactive, ref} from "vue";
   import {useRouter} from "vue-router";
 
@@ -13,7 +13,7 @@
   const login = async () => {
     try {
 
-      const response = await axios.post("auth/login",
+      const response = await api.post("/auth/login",
           {
             'email': form.email,
             'password': form.password

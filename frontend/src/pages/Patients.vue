@@ -1,6 +1,6 @@
 <script setup>
   import {onMounted, ref} from "vue";
-  import axios from "axios";
+  import api from "@/services/api.js";
   import {useRouter} from "vue-router";
 
   const router = useRouter();
@@ -10,16 +10,9 @@
 
   const getPatients = async () => {
     try{
-      const token = localStorage.getItem("patient-management-token");
-      const response = await axios.get("/api/patients", {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        }
-      });
+      const response = await api.get("/api/patients");
 
       patients.value = response.data;
-      console.log(response.data);
       canPageLoaded.value = true;
     } catch (err) {
       console.log(err);
@@ -123,7 +116,9 @@
               <td class="muted-cell">{{ patient.dateOfBirth || "—" }}</td>
               <td class="muted-cell address-cell">{{ patient.address || "—" }}</td>
               <td class="action-cell">
-                <button class="more-button" type="button" aria-label="Patient actions">•••</button>
+                <RouterLink :to='"/patients/" + patient.id' class="more-button">
+                  Details
+                </RouterLink>
               </td>
             </tr>
           </tbody>
