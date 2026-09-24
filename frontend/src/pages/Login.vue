@@ -22,7 +22,7 @@
       const token = response.data.token;
       localStorage.setItem("patient-management-token", token);
       finalMessage.value = 'Logged in successfully! Redirecting..';
-      router.push('/patients');
+      router.push('/dashboard');
     } catch (err){
       console.log("Error login", err);
       finalMessage.value = 'Error logging in';

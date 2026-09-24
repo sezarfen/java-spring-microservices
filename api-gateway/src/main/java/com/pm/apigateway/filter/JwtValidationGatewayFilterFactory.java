@@ -30,7 +30,7 @@ public class JwtValidationGatewayFilterFactory extends // JwtValidation olarak i
 
          if (token == null || !token.startsWith("Bearer ")){
              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+             return exchange.getResponse().setComplete();
          }
 
          return webClient.get()

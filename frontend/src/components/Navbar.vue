@@ -1,7 +1,7 @@
 <script setup>
 
 import {HomeIcon, UsersIcon, CalendarDaysIcon, EyeDropperIcon, FolderMinusIcon} from "@heroicons/vue/24/solid";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
 
 defineProps({
@@ -24,7 +24,7 @@ defineProps({
     {
       name: 'Dashboard',
       icon: HomeIcon,
-      path: '/'
+      path: '/dashboard'
     },
     {
       name: 'Hastalar',
@@ -63,14 +63,19 @@ defineProps({
         </span>
         <span class="brand__text">
           <strong>{{ title }}</strong>
-          <small>{{smallTitle}}</small>
+          <small>{{ smallTitle }}</small>
         </span>
       </a>
       <nav class="nav-links" aria-label="Ana navigasyon">
-        <a v-bind:class='["nav-link", item.path === currentPath ? "nav-link--active" : ""]' href="#" v-for="item in navbarItems">
+        <RouterLink
+            v-bind:class='["nav-link", item.path === currentPath ? "nav-link--active" : ""]'
+            :to="item.path"
+            v-for="item in navbarItems">
+
           <component :is="item.icon" />
           <span> {{item.name}}</span>
-        </a>
+
+        </RouterLink>
       </nav>
 
       <div class="navbar__actions">

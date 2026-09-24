@@ -8,7 +8,7 @@ api.interceptors.request.use((config) => {
 
     const token = localStorage.getItem("patient-management-token");
 
-    if (token){
+    if (token && config.url !== '/auth/login'){
         config.headers.Authorization = `Bearer ${token}`;
     }
 

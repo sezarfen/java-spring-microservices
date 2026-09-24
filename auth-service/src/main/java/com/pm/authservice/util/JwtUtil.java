@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Component // register these class as Spring Bean, help while dependency injection
 public class JwtUtil {
@@ -19,16 +20,19 @@ public class JwtUtil {
     private final Key secretKey;
 
     public JwtUtil(@Value("${jwt.secret}") String secret){
-        byte[] keyBytes = Base64.getDecoder().decode(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = Base64.getDecoder().decode(secret.getBytes(StandardCharsets.UTF_8)); // secret key'i base86 formatında olmaya zorluyor random string olmaz yani
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email, String role){
+    public String generateToken(UUID id, String email, String role){
         return Jwts.builder()
-                .subject(email)
+                .subject(id.toString())
+                .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .expiration(
+                        new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)
+                ) // 10 hours
                 .signWith(secretKey) // sign the string
                 .compact(); // compass everything to single string
     }
@@ -44,4 +48,16 @@ public class JwtUtil {
             throw new JwtException("Invalid JWT");
         }
     }
+
+    public UUID getUserIdFromToken(String token){
+        String subject = Jwts.parser()
+                .verifyWith((SecretKey) secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+
+        return UUID.fromString(subject);
+    }
+
 }
