@@ -18,7 +18,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception{
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/login").permitAll() // /auth/login iken forbidden diyordu çünkü /login olarak kayıtlı burada
                         .requestMatchers("/me").authenticated()
-//                        .requestMatchers("/patients/**").authenticated()
+                        .requestMatchers("/patients/**").authenticated()
                         .anyRequest().authenticated()) // authorize all requests
                 .addFilterBefore(
                         jwtAuthenticationFilter,

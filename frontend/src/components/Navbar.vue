@@ -66,7 +66,7 @@ defineProps({
           <small>{{ smallTitle }}</small>
         </span>
       </a>
-      <nav class="nav-links" aria-label="Ana navigasyon">
+      <nav class="nav-links" aria-label="Ana Navigasyon">
         <RouterLink
             v-bind:class='["nav-link", item.path === currentPath ? "nav-link--active" : ""]'
             :to="item.path"
